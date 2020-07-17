@@ -1,10 +1,10 @@
 package com.barry.flink.source;
 
-import com.barry.flink.domain.TaxiRide;
 import com.barry.flink.dynamicrules.dynamicrules.Transaction;
 import com.barry.flink.utils.DataGenerator;
 import org.apache.flink.streaming.api.functions.source.SourceFunction;
 
+import java.math.BigDecimal;
 import java.util.Random;
 
 /**
@@ -22,8 +22,20 @@ public class TransactionGenerator implements SourceFunction<Transaction> {
             Random rnd = new Random(200);
             long id = 100+ rnd.nextInt(200);
             DataGenerator data = new DataGenerator(id);
-            Transaction event1 = Transaction.fromString(data.taxiId()+",2020-07-17 00:00:00,1001,1002,CSH,21.5,1");
-            ctx.collect(event1);
+            Transaction event = new Transaction();
+            event.setTransactionId(data.taxiId());
+            event.setEventTime(data.startTime().toEpochMilli());
+            event.setPayeeId(data.driverId());
+            event.setBeneficiaryId(data.driverId()+1);
+            if(id >= 150){
+                event.setPaymentType(Transaction.PaymentType.CRD);
+            } else {
+                event.setPaymentType(Transaction.PaymentType.CSH);
+            }
+            event.setPaymentAmount(new BigDecimal(data.tip()));
+            event.setIngestionTimestamp(rnd.nextLong());
+            //Transaction event = Transaction.fromString(data.taxiId()+",2020-07-17 00:00:00,1001,1002,CSH,21.5,1,20");
+            ctx.collect(event);
         }
     }
 

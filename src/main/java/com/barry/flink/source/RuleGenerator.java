@@ -24,7 +24,7 @@ public class RuleGenerator extends RichSourceFunction<Rule> {
             DataGenerator data = new DataGenerator(id);
             RuleParser ruleParser = new RuleParser();
             Rule rule =
-                    ruleParser.fromString(data.taxiId()+",(active),(paymentType&payeeId),,(totalFare),(SUM),(>),(50),(20)");
+                    ruleParser.fromString(data.taxiId()+",(active),(paymentType&payeeId),,(totalFare),(SUM),(>),(10),(20)");
             ctx.collect(rule);
             //线程睡眠
             Thread.sleep(3*1000);

@@ -68,16 +68,13 @@ public class DynamicAlertFunction
 
   @Override
   public void open(Configuration parameters) {
-
     windowState = getRuntimeContext().getMapState(windowStateDescriptor);
-
     alertMeter = new MeterView(60);
     getRuntimeContext().getMetricGroup().meter("alertsPerSecond", alertMeter);
   }
 
   @Override
-  public void processElement(
-          Keyed<Transaction, String, Integer> value, ReadOnlyContext ctx, Collector<Alert> out)
+  public void processElement(Keyed<Transaction, String, Integer> value, ReadOnlyContext ctx, Collector<Alert> out)
       throws Exception {
     long currentEventTime = value.getWrapped().getEventTime();
     addToStateValuesSet(windowState, currentEventTime, value.getWrapped());
@@ -122,9 +119,7 @@ public class DynamicAlertFunction
           evictAllStateElements();
         }
         alertMeter.markEvent();
-        out.collect(
-            new Alert<>(
-                rule.getRuleId(), rule, value.getKey(), value.getWrapped(), aggregateResult));
+        out.collect(new Alert<>(rule.getRuleId(), rule, value.getKey(), value.getWrapped(), aggregateResult));
       }
     }
   }
@@ -219,7 +214,6 @@ public class DynamicAlertFunction
   @Override
   public void onTimer(final long timestamp, final OnTimerContext ctx, final Collector<Alert> out)
       throws Exception {
-
     Rule widestWindowRule = ctx.getBroadcastState(Descriptors.rulesDescriptor).get(WIDEST_RULE_KEY);
 
     Optional<Long> cleanupEventTimeWindow =

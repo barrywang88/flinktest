@@ -22,8 +22,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.flink.table.shaded.org.joda.time.Instant;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,6 +47,7 @@ public class Transaction implements TimestampAssignable<Long> {
   public BigDecimal paymentAmount;
   public PaymentType paymentType;
   private Long ingestionTimestamp;
+  public BigDecimal totalFare;
 
   private static transient DateTimeFormatter timeFormatter =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -70,7 +74,7 @@ public class Transaction implements TimestampAssignable<Long> {
 
   public static Transaction fromString(String line) {
     List<String> tokens = Arrays.asList(line.split(","));
-    int numArgs = 7;
+    int numArgs = 8;
     if (tokens.size() != numArgs) {
       throw new RuntimeException(
           "Invalid transaction: "
@@ -86,13 +90,17 @@ public class Transaction implements TimestampAssignable<Long> {
     try {
       Iterator<String> iter = tokens.iterator();
       transaction.transactionId = Long.parseLong(iter.next());
-      transaction.eventTime =
-          ZonedDateTime.parse(iter.next(), timeFormatter).toInstant().toEpochMilli();
+      try {
+        transaction.eventTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(iter.next()).toInstant().toEpochMilli();
+      } catch (ParseException e) {
+        e.printStackTrace();
+      }
       transaction.payeeId = Long.parseLong(iter.next());
       transaction.beneficiaryId = Long.parseLong(iter.next());
       transaction.paymentType = PaymentType.fromString(iter.next());
       transaction.paymentAmount = new BigDecimal(iter.next());
       transaction.ingestionTimestamp = Long.parseLong(iter.next());
+      transaction.totalFare = new BigDecimal(iter.next());
     } catch (NumberFormatException nfe) {
       throw new RuntimeException("Invalid record: " + line, nfe);
     }

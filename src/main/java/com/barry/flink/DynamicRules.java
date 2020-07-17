@@ -42,7 +42,7 @@ public class DynamicRules {
         BroadcastStream<Rule> etlRuleBroadcastStream = ruleSource.broadcast(RulesEvaluator.Descriptors.rulesDescriptor);
         DataStream<Alert> alerts = transactionSource.connect(etlRuleBroadcastStream)
                 .process(new DynamicKeyFunction())
-                .keyBy(Keyed::getKey)
+                .keyBy(x -> x.getKey())
                 .connect(etlRuleBroadcastStream)
                 .process(new DynamicAlertFunction());
 

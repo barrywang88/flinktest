@@ -69,9 +69,7 @@ public class DynamicKeyFunction
     int ruleCounter = 0;
     for (Entry<Integer, Rule> entry : rulesState.immutableEntries()) {
       final Rule rule = entry.getValue();
-      out.collect(
-          new Keyed<>(
-              event, KeysExtractor.getKey(rule.getGroupingKeyNames(), event), rule.getRuleId()));
+      out.collect(new Keyed<>(event, KeysExtractor.getKey(rule.getGroupingKeyNames(), event), rule.getRuleId()));
       ruleCounter++;
     }
     ruleCounterGauge.setValue(ruleCounter);

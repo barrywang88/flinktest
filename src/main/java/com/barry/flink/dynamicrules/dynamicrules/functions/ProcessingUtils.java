@@ -43,13 +43,11 @@ class ProcessingUtils {
   static <K, V> Set<V> addToStateValuesSet(MapState<K, Set<V>> mapState, K key, V value)
       throws Exception {
     Set<V> valuesSet = mapState.get(key);
-    if (valuesSet != null) {
-      valuesSet.add(value);
-    } else {
+    if(valuesSet == null){
       valuesSet = new HashSet<>();
-      valuesSet.add(value);
+      mapState.put(key, valuesSet);
     }
-    mapState.put(key, valuesSet);
+    valuesSet.add(value);
     return valuesSet;
   }
 }
