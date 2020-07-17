@@ -29,7 +29,7 @@ public class TransactionGenerator implements SourceFunction<Transaction> {
             event.setEventTime(data.startTime().toEpochMilli());
             event.setPayeeId(data.driverId());
             event.setBeneficiaryId(data.driverId()+1);
-            if(id >= 5){
+            if(id%3 == 0){
                 event.setPaymentType(Transaction.PaymentType.CRD);
             } else {
                 event.setPaymentType(Transaction.PaymentType.CSH);
