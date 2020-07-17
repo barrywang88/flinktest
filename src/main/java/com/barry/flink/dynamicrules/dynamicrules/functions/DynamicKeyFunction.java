@@ -56,6 +56,7 @@ public class DynamicKeyFunction
   public void processElement(
           Transaction event, ReadOnlyContext ctx, Collector<Keyed<Transaction, String, Integer>> out)
       throws Exception {
+    log.info("current transaction:{}", event);
     ReadOnlyBroadcastState<Integer, Rule> rulesState =
         ctx.getBroadcastState(Descriptors.rulesDescriptor);
     forkEventForEachGroupingKey(event, rulesState, out);
